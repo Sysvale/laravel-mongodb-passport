@@ -1,6 +1,7 @@
 {
     "name": "sysvale/laravel-mongodb-passport",
-    "description": "A package to allow laravel/passport use with jenssegers/laravel-mongodb",
+    "version": "3.0.0",
+    "description": "A package to allow laravel/passport use with mongodb/laravel-mongodb",
     "homepage": "https://github.com/Sysvale/laravel-mongodb-passport",
     "license": "MIT",
     "keywords": [
@@ -13,10 +14,9 @@
         "sysvale"
     ],
     "require": {
-        "php": ">=7.1",
-        "illuminate/support": "^5.5 || ^6.0 || ^7.0 || ^8.0 || ^9.0",
-        "jenssegers/mongodb": "3.3.* || 3.4.* || 3.5.* || 3.6.* || 3.8.* || 3.9.*",
-        "laravel/passport": "6.0.* || 7.0.* || 7.4.* || 7.5.* || ^8.0 || ^9.0 || ^10"
+        "php": "^8.1",
+        "mongodb/laravel-mongodb": "^4.0",
+        "laravel/passport": "^10 || ^11"
     },
     "autoload": {
         "psr-4": {
@@ -24,10 +24,6 @@
         }
     },
     "authors": [
-        {
-            "name": "DesignMyNight",
-            "email": "support@designmynight.com"
-        },
         {
             "name": "Geidson",
             "email": "geidson@sysvale.com"
