@@ -42,8 +42,8 @@ class Client extends Model
      * @var array
      */
     protected $casts = [
-        'grant_types' => 'array',
-        'scopes' => 'array',
+        // 'grant_types' => 'array', // Not support by mongo package yet
+        // 'scopes' => 'array', // Not support by mongo package yet
         'personal_access_client' => 'bool',
         'password_client' => 'bool',
         'revoked' => 'bool',

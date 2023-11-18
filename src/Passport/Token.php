@@ -44,7 +44,7 @@ class Token extends Model
      * @var array
      */
     protected $casts = [
-        'scopes' => 'array',
+        // 'scopes' => 'array', Not supported by mongodb package yet
         'revoked' => 'bool',
         'expires_at' => 'datetime',
     ];
