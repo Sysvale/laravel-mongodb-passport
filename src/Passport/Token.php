@@ -2,7 +2,7 @@
 
 namespace Sysvale\Mongodb\Passport;
 
-use MongoDB\Laravel\\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 use Laravel\Passport\ResolvesInheritedScopes;
 
 class Token extends Model

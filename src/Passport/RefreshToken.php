@@ -3,7 +3,7 @@
 namespace Sysvale\Mongodb\Passport;
 
 use Laravel\Passport\Passport;
-use MongoDB\Laravel\\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 
 class RefreshToken extends Model
 {

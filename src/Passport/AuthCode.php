@@ -2,7 +2,7 @@
 
 namespace Sysvale\Mongodb\Passport;
 
-use MongoDB\Laravel\\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 
 class AuthCode extends Model
 {
