@@ -2,7 +2,7 @@
 
 namespace Sysvale\Mongodb\Passport;
 
-use Jenssegers\Mongodb\Eloquent\Model;
+use MongoDB\Laravel\\Eloquent\Model;
 
 class PersonalAccessClient extends Model
 {
@@ -27,6 +27,6 @@ class PersonalAccessClient extends Model
      */
     public function client()
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(Passport::clientModel());
     }
 }

@@ -3,9 +3,9 @@
 namespace Sysvale\Mongodb\Passport;
 
 use Laravel\Passport\Passport;
-use Sysvale\Mongodb\Passport\Bridge\RefreshToken as BridgeRefreshToken;
+use MongoDB\Laravel\\Eloquent\Model;
 
-class RefreshToken extends BridgeRefreshToken
+class RefreshToken extends Model
 {
     /**
      * The database table used by the model.
@@ -13,6 +13,13 @@ class RefreshToken extends BridgeRefreshToken
      * @var string
      */
     protected $table = 'oauth_refresh_tokens';
+
+    /**
+     * The "type" of the primary key ID.
+     *
+     * @var string
+     */
+    protected $keyType = 'string';
 
     /**
      * Indicates if the IDs are auto-incrementing.
@@ -35,15 +42,7 @@ class RefreshToken extends BridgeRefreshToken
      */
     protected $casts = [
         'revoked' => 'bool',
-    ];
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = [
-        'expires_at',
+        'expires_at' => 'datetime',
     ];
 
     /**
