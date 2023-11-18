@@ -4,6 +4,7 @@ namespace Sysvale\Mongodb\Passport;
 
 use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Passport\Passport;
 use Laravel\Passport\ResolvesInheritedScopes;
 
 
