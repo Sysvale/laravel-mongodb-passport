@@ -2,6 +2,7 @@
 
 namespace Sysvale\Mongodb\Passport;
 
+use Laravel\Passport\Passport;
 use MongoDB\Laravel\Eloquent\Model;
 
 class PersonalAccessClient extends Model
