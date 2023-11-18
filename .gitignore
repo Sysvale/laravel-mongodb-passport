@@ -3,7 +3,6 @@
 *.sublime-workspace
 .DS_Store
 .idea/
-composer.lock
 composer.phar
 phpunit.phar
 vendor
