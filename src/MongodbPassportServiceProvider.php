@@ -19,12 +19,16 @@ use Sysvale\Mongodb\Passport\ClientRepository;
 use Sysvale\Mongodb\Passport\RefreshToken;
 use Sysvale\Mongodb\Passport\RefreshTokenRepository;
 use Sysvale\Mongodb\Passport\TokenRepository;
+use Sysvale\Mongodb\Passport\Guards\TokenGuard;
+use Illuminate\Support\Facades\Auth;
+use League\OAuth2\Server\ResourceServer;
+use Laravel\Passport\PassportUserProvider;
 
 class MongodbPassportServiceProvider extends ServiceProvider
 {
     /**
-    * @return void
-    */
+     * @return void
+     */
     public function register()
     {
         //Define use models
@@ -56,5 +60,41 @@ class MongodbPassportServiceProvider extends ServiceProvider
         $this->app->extend(PassportPurgeCommand::class, function () {
             return new PurgeCommand();
         });
+
+        $this->registerGuard();
+    }
+
+    /**
+     * Register the token guard.
+     *
+     * @return void
+     */
+    protected function registerGuard()
+    {
+        Auth::resolved(function ($auth) {
+            $auth->extend('passport', function ($app, $name, array $config) {
+                return tap($this->makeGuard($config), function ($guard) {
+                    app()->refresh('request', $guard, 'setRequest');
+                });
+            });
+        });
+    }
+
+    /**
+     * Make an instance of the token guard.
+     *
+     * @param  array  $config
+     * @return \Laravel\Passport\Guards\TokenGuard
+     */
+    protected function makeGuard(array $config)
+    {
+        return new TokenGuard(
+            $this->app->make(ResourceServer::class),
+            new PassportUserProvider(Auth::createUserProvider($config['provider']), $config['provider']),
+            $this->app->make(TokenRepository::class),
+            $this->app->make(ClientRepository::class),
+            $this->app->make('encrypter'),
+            $this->app->make('request')
+        );
     }
 }
