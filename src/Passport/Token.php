@@ -2,16 +2,13 @@
 
 namespace Sysvale\Mongodb\Passport;
 
-use Jenssegers\Mongodb\Eloquent\Model;
+use Laravel\Passport\Passport;
+use MongoDB\Laravel\Eloquent\Model;
+use Laravel\Passport\ResolvesInheritedScopes;
 
 class Token extends Model
 {
-    /**
-     * The primary key for the model.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
+    use ResolvesInheritedScopes;
 
     /**
      * The database table used by the model.
@@ -19,6 +16,13 @@ class Token extends Model
      * @var string
      */
     protected $table = 'oauth_access_tokens';
+
+    /**
+     * The "type" of the primary key ID.
+     *
+     * @var string
+     */
+    protected $keyType = 'string';
 
     /**
      * Indicates if the IDs are auto-incrementing.
@@ -40,16 +44,9 @@ class Token extends Model
      * @var array
      */
     protected $casts = [
+        // 'scopes' => 'array', Not supported by mongodb package yet
         'revoked' => 'bool',
-    ];
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = [
-        'expires_at',
+        'expires_at' => 'datetime',
     ];
 
     /**
@@ -59,7 +56,7 @@ class Token extends Model
      */
     public function client()
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(Passport::clientModel());
     }
 
     /**
@@ -71,20 +68,33 @@ class Token extends Model
     {
         $provider = config('auth.guards.api.provider');
 
-        return $this->belongsTo(config('auth.providers.' . $provider . '.model'));
-    }
+        $model = config('auth.providers.' . $provider . '.model');
+
+        return $this->belongsTo($model, 'user_id', (new $model)->getKeyName());    }
 
     /**
      * Determine if the token has a given scope.
      *
-     * @param string $scope
-     *
+     * @param  string  $scope
      * @return bool
      */
     public function can($scope)
     {
-        return in_array('*', $this->scopes) ||
-        array_key_exists($scope, array_flip($this->scopes));
+        if (in_array('*', $this->scopes)) {
+            return true;
+        }
+
+        $scopes = Passport::$withInheritedScopes
+            ? $this->resolveInheritedScopes($scope)
+            : [$scope];
+
+        foreach ($scopes as $scope) {
+            if (array_key_exists($scope, array_flip($this->scopes))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

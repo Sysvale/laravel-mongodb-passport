@@ -2,10 +2,17 @@
 
 namespace Sysvale\Mongodb\Passport;
 
-use Jenssegers\Mongodb\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Passport\Passport;
+use Laravel\Passport\ResolvesInheritedScopes;
+
 
 class Client extends Model
 {
+    use HasFactory;
+    use ResolvesInheritedScopes;
+
     /**
      * The database table used by the model.
      *
@@ -35,10 +42,49 @@ class Client extends Model
      * @var array
      */
     protected $casts = [
+        // 'grant_types' => 'array', // Not support by mongo package yet
+        // 'scopes' => 'array', // Not support by mongo package yet
         'personal_access_client' => 'bool',
         'password_client' => 'bool',
         'revoked' => 'bool',
     ];
+
+    /**
+     * The temporary plain-text client secret.
+     *
+     * @var string|null
+     */
+    protected $plainSecret;
+
+    /**
+     * Bootstrap the model and its traits.
+     *
+     * @return void
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (config('passport.client_uuids')) {
+                $model->{$model->getKeyName()} = $model->{$model->getKeyName()} ?: (string) Str::orderedUuid();
+            }
+        });
+    }
+
+    /**
+     * Get the user that the client belongs to.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        $provider = $this->provider ?: config('auth.guards.api.provider');
+        return $this->belongsTo(
+            config("auth.providers.{$provider}.model")
+        );
+    }
+
 
     /**
      * Get all of the authentication codes for the client.
@@ -47,7 +93,7 @@ class Client extends Model
      */
     public function authCodes()
     {
-        return $this->hasMany(AuthCode::class);
+        return $this->hasMany(Passport::authCodeModel(), 'client_id');
     }
 
     /**
@@ -57,8 +103,40 @@ class Client extends Model
      */
     public function tokens()
     {
-        return $this->hasMany(Token::class);
+        return $this->hasMany(Passport::tokenModel(), 'client_id');
     }
+
+    /**
+     * The temporary non-hashed client secret.
+     *
+     * This is only available once during the request that created the client.
+     *
+     * @return string|null
+     */
+    public function getPlainSecretAttribute()
+    {
+        return $this->plainSecret;
+    }
+
+    /**
+     * Set the value of the secret attribute.
+     *
+     * @param  string|null  $value
+     * @return void
+     */
+    public function setSecretAttribute($value)
+    {
+        $this->plainSecret = $value;
+
+        if (is_null($value) || !Passport::$hashesClientSecrets) {
+            $this->attributes['secret'] = $value;
+
+            return;
+        }
+
+        $this->attributes['secret'] = password_hash($value, PASSWORD_BCRYPT);
+    }
+
 
     /**
      * Determine if the client is a "first party" client.
@@ -81,6 +159,31 @@ class Client extends Model
     }
 
     /**
+     * Determine whether the client has the given scope.
+     *
+     * @param  string  $scope
+     * @return bool
+     */
+    public function hasScope($scope)
+    {
+        if (!is_array($this->scopes)) {
+            return true;
+        }
+
+        $scopes = Passport::$withInheritedScopes
+            ? $this->resolveInheritedScopes($scope)
+            : [$scope];
+
+        foreach ($scopes as $scope) {
+            if (in_array($scope, $this->scopes)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Determine if the client is a confidential client.
      *
      * @return bool
@@ -89,4 +192,35 @@ class Client extends Model
     {
         return ! empty($this->secret);
     }
+
+    /**
+     * Get the auto-incrementing key type.
+     *
+     * @return string
+     */
+    public function getKeyType()
+    {
+        return Passport::clientUuids() ? 'string' : $this->keyType;
+    }
+
+    /**
+     * Get the value indicating whether the IDs are incrementing.
+     *
+     * @return bool
+     */
+    public function getIncrementing()
+    {
+        return Passport::clientUuids() ? false : $this->incrementing;
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public static function newFactory()
+    {
+        return ClientFactory::new();
+    }
+
 }

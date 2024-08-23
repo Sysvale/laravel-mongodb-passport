@@ -41,6 +41,9 @@ class User extends Authenticatable
  5.5.x    | 4.0.x, 5.0.x, 6.0.x, 7.0.x   | 1.1.x
  5.6.x    | 4.0.x, 5.0.x, 6.0.x, 7.0.x   | 1.1.x
  6.x      | 4.0.x, 5.0.x, 6.0.x, 7.x, 8.x| 1.2.x
+ 8.x      | 8.x                          | 2.1.0
+ 9.x      | 9.x, 10.x                    | 2.2
+ 10.x     | 11.x                         | 3.0.0
 
 And add the service provider in `config/app.php`:
 
@@ -48,10 +51,5 @@ And add the service provider in `config/app.php`:
 Sysvale\Mongodb\MongodbPassportServiceProvider::class,
 ```
 
-For usage with [Lumen](http://lumen.laravel.com), add the service provider in `bootstrap/app.php`.
 
-```php
-$app->register(Sysvale\Mongodb\MongodbPassportServiceProvider::class);
-```
-
-The service provider will overide the default laravel passport models in order to use mongodb's implementation of eloquent. There is no need to register any additional classes or add any additional configuration other than those outlined in [Laravel Passport](https://github.com/laravel/passport) and [MongoDB](https://github.com/jenssegers/laravel-mongodb).
+The service provider will overide the default laravel passport models in order to use mongodb's implementation of eloquent. There is no need to register any additional classes or add any additional configuration other than those outlined in [Laravel Passport](https://github.com/laravel/passport) and [MongoDB](https://github.com/mongodb/laravel-mongodb).
