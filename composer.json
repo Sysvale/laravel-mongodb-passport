@@ -1,6 +1,6 @@
 {
     "name": "sysvale/laravel-mongodb-passport",
-    "version": "3.0.0",
+    "version": "3.0.1",
     "description": "A package to allow laravel/passport use with mongodb/laravel-mongodb",
     "homepage": "https://github.com/Sysvale/laravel-mongodb-passport",
     "license": "MIT",
